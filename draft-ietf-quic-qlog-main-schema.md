@@ -1369,60 +1369,6 @@ uint64 = text / uint .size 8
 ~~~
 {: #cddl-ijson-uint64-def title="Custom uint64 definition for I-JSON"}
 
-### Truncated values {#truncated-values}
-
-For some use cases (e.g., limiting file size, privacy), it can be
-necessary not to log a full raw blob (using the `hexstring` type) but
-instead a truncated value (for example, only the first 100 bytes of an
-HTTP response body to be able to discern which file it actually
-contained). In these cases, the original byte-size length cannot be
-obtained from the serialized value directly.
-
-As such, all qlog schema definitions SHOULD include a separate,
-length-indicating field for all fields of type `hexstring` they specify,
-see for example {{raw-info}}. This not only ensures the original length
-can always be retrieved, but also allows the omission of any raw value
-bytes of the field completely (e.g., out of privacy or security
-considerations).
-
-To reduce overhead however and in the case the full raw value is logged,
-the extra length-indicating field can be left out. As such, tools MUST
-be able to deal with this situation and derive the length of the field
-from the raw value if no separate length-indicating field is present.
-The main possible permutations are shown by example in
-{{truncated-values-ex}}.
-
-~~~~~~~~
-// both the full raw value and its length are present
-// (length is redundant)
-{
-    "raw_length": 5,
-    "raw": "051428abff"
-}
-
-// only the raw value is present, indicating it
-// represents the fields full value the byte
-// length is obtained by calculating raw.length / 2
-{
-    "raw": "051428abff"
-}
-
-// only the length field is present, meaning the
-// value was omitted
-{
-    "raw_length": 5,
-}
-
-// both fields are present and the lengths do not match:
-// the value was truncated to the first three bytes.
-{
-    "raw_length": 5,
-    "raw": "051428"
-}
-~~~~~~~~
-{: #truncated-values-ex title="Example for serializing truncated
-hexstrings"}
-
 ## qlog to JSON Text Sequences mapping {#format-json-seq}
 
 One of the downsides of using normal JSON is that it is inherently a
@@ -1538,6 +1484,60 @@ libraries exist in most programming languages that can be used and the format is
 easy enough to parse with existing implementations (i.e., by splitting the file
 into its component records and feeding them to a normal JSON parser individually,
 as each record by itself is a valid JSON object).
+
+### Truncated values {#truncated-values}
+
+For some use cases (e.g., limiting file size, privacy), it can be
+necessary not to log a full raw blob (using the `hexstring` type) but
+instead a truncated value (for example, only the first 100 bytes of an
+HTTP response body to be able to discern which file it actually
+contained). In these cases, the original byte-size length cannot be
+obtained from the serialized value directly.
+
+As such, all qlog schema definitions SHOULD include a separate,
+length-indicating field for all fields of type `hexstring` they specify,
+see for example {{raw-info}}. This not only ensures the original length
+can always be retrieved, but also allows the omission of any raw value
+bytes of the field completely (e.g., out of privacy or security
+considerations).
+
+To reduce overhead however and in the case the full raw value is logged,
+the extra length-indicating field can be left out. As such, tools MUST
+be able to deal with this situation and derive the length of the field
+from the raw value if no separate length-indicating field is present.
+The main possible permutations are shown by example in
+{{truncated-values-ex}}.
+
+~~~~~~~~
+// both the full raw value and its length are present
+// (length is redundant)
+{
+    "raw_length": 5,
+    "raw": "051428abff"
+}
+
+// only the raw value is present, indicating it
+// represents the fields full value the byte
+// length is obtained by calculating raw.length / 2
+{
+    "raw": "051428abff"
+}
+
+// only the length field is present, meaning the
+// value was omitted
+{
+    "raw_length": 5,
+}
+
+// both fields are present and the lengths do not match:
+// the value was truncated to the first three bytes.
+{
+    "raw_length": 5,
+    "raw": "051428"
+}
+~~~~~~~~
+{: #truncated-values-ex title="Example for serializing truncated
+hexstrings"}
 
 ## Other optimized formatting options {#optimizations}
 
