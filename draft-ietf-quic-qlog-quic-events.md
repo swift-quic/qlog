@@ -1516,7 +1516,7 @@ KeyType =
 
 ## ECN
 ~~~ cddl
-ECN = "00" / "01" / "10" / "11"
+ECN = "Non-ECT" / "ECT(1)" / "ECT(0)" / "CE"
 ~~~
 {: #ecn-def title="ECN definition"}
 
