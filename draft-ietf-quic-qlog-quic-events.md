@@ -711,8 +711,6 @@ TransportPacketSent = {
 
     ? is_mtu_probe_packet: bool .default false
 
-    ? ecn: ECN
-
     ? trigger:
       ; draft-23 5.1.1
       "retransmit_reordered" /
@@ -760,8 +758,6 @@ TransportPacketReceived = {
 
     ? raw: RawInfo
     ? datagram_id: uint32
-
-    ? ecn: ECN
 
     ? trigger:
         ; if packet was buffered because
@@ -891,6 +887,10 @@ TransportDatagramsSent = {
     ; including UDP header length
     ? raw: [+ RawInfo]
 
+    ; ECN bits in the IP header
+    ; if not set, defaults to Non-ECT
+    ? ecn: [+ ECN]
+
     ? datagram_ids: [+ uint32]
 }
 ~~~
@@ -921,6 +921,10 @@ TransportDatagramsReceived = {
     ; RawInfo:length field indicates total length of the datagrams
     ; including UDP header length
     ? raw: [+ RawInfo]
+
+    ; ECN bits in the IP header
+    ; if not set, defaults to Non-ECT
+    ? ecn: [+ ECN]
 
     ? datagram_ids: [+ uint32]
 }
@@ -1607,7 +1611,7 @@ AckFrame = {
     ; ECN (explicit congestion notification) related fields
     ; (not always present)
     ? ect1: uint64
-    ? ect0:uint64
+    ? ect0: uint64
     ? ce: uint64
 
     ; total frame length, including frame header
